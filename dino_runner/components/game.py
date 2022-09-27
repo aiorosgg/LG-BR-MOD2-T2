@@ -15,14 +15,15 @@ class Game:
         self.game_speed = 20
         self.x_pos_bg = 0
         self.y_pos_bg = 380
+       
     def run(self):
-        # Game loop: events - update - draw
         self.playing = True
         while self.playing:
             self.events()
             self.update()
             self.draw()
         pygame.quit()
+        
     def events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
