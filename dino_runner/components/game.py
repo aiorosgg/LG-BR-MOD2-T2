@@ -1,3 +1,4 @@
+#
 import pygame
 
 from dino_runner.components.dinosaur import Dinosaur
