@@ -1,4 +1,3 @@
-#
 import pygame
 
 from dino_runner.components.dinosaur import Dinosaur
@@ -28,10 +27,12 @@ class Game:
             self.update()
             self.draw()
         pygame.quit()
+        
     def events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.playing = False
+                
     def update(self):
         user_input = pygame.key.get_pressed()
         self.player.update(user_input)
