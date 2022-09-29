@@ -1,4 +1,3 @@
-
 import pygame
 from pygame.sprite import Sprite
 
@@ -31,6 +30,7 @@ class Dinosaur(Sprite):
             self.jump()
         elif self.dino_duck:
             self.duck()
+            
         if user_input[pygame.K_UP] and not self.dino_jump:
             self.dino_jump = True
             self.dino_run = False

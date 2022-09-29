@@ -18,11 +18,12 @@ class Obstacle(Sprite):
             self.bird_fly()
         if self.step_index >= 10:
             self.step_index = 0
+        if self.rect.x < -self.rect.width:
+            obstacles.pop()
             
         self.rect.x -= game_speed
 
-        if self.rect.x < -self.rect.width:
-            obstacles.pop()
+        
 
     def draw(self, screen):
         screen.blit(self.image, (self.rect.x, self.rect.y))
