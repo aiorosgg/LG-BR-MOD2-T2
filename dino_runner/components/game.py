@@ -1,10 +1,10 @@
-from cgitb import text
-from tkinter import font
 import pygame
 
+from dino_runner.utils.constants import BG, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, TITLE, FPS, DEFAULT_TYPE
 from dino_runner.components.dinosaur import Dinosaur
-from dino_runner.utils.constants import BG, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, TITLE, FPS
 from dino_runner.components.obstacles.obstacle_manager import ObstacleManager
+from dino_runner.components.power_ups.power_up_manager import PowerUpManager
+
 
 FONT_STYLE = "freesansbold.ttf"
  
@@ -25,6 +25,7 @@ class Game:
         self.death_count = 0
         self.player = Dinosaur()
         self.obstacle_manager = ObstacleManager()
+        self.power_up_manager = PowerUpManager()
 
     def execute(self):
         self.running = True
@@ -38,6 +39,7 @@ class Game:
     def run(self):
         self.playing = True
         self.obstacle_manager.reset_obstacles()
+        self.power_up_manager.reset_power_ups()
         while self.playing:
             self.events()
             self.update()
@@ -53,29 +55,33 @@ class Game:
         user_input = pygame.key.get_pressed()
         self.player.update(user_input)
         self.obstacle_manager.update(self)
+        self.power_up_manager.update(self.score, self.game_speed, self.player)
         self.update_score()
-    
-    def text_style(self, size_font, format, color_r, color_g, color_b, pos_x, pos_y):      
-        font = pygame.font.Font(FONT_STYLE, size_font)
-        text = font.render(format, True, (color_r, color_g, color_b))
-        text_rect = text.get_rect()        
-        text_rect.center = (pos_x, pos_y)
-        self.screen.blit(text, text_rect)
-                
+                    
     def update_score(self):
         self.score += 0.5
         if self.score % 100 == 0:
-            self.game_speed += 1
-    
-        self.text_style(22, (f"Score: {self.score:.0f}"), 0, 0, 0, 1000, 50)      
-               
+            self.game_speed += 1    
+        self.text_format(22, (f"Score: {self.score:.0f}"), "#000000", 1000, 50)
+        
+    def draw_power_up_time(self):
+        if self.player.has_power_up:
+            time_to_show = round((self.player.power_up_time - pygame.time.get_ticks()) / 1000, 2)
+            if time_to_show >= 0:
+                self.text_format(18, (f"{self.player.type.capitalize()} enabled for {time_to_show} seconds."), "#000000", 500,40)
+            else:
+                self.player.has_power_up = False
+                self.player.type = DEFAULT_TYPE
+                
     def draw(self):
         self.clock.tick(FPS)
-        self.screen.fill((255, 255, 255))
+        self.screen.fill("#C0C0C0")
         self.draw_background()
         self.player.draw(self.screen)
         self.obstacle_manager.draw(self.screen)
         self.update_score()
+        self.draw_power_up_time()
+        self.power_up_manager.draw(self.screen)
         pygame.display.update()
         pygame.display.flip()
 
@@ -97,19 +103,26 @@ class Game:
                 self.score = 0
                 self.run()
                 
+    def text_format(self, size_font, format, color_hex, pos_x, pos_y):      
+        font = pygame.font.Font(FONT_STYLE, size_font)
+        text = font.render(format, True, (color_hex))
+        text_rect = text.get_rect()        
+        text_rect.center = (pos_x, pos_y)
+        self.screen.blit(text, text_rect)
+                
     def show_menu(self):
-        self.screen.fill((255, 255, 255))
+        self.screen.fill("#C0C0C0")
         half_screen_height = SCREEN_HEIGHT // 2
         half_screen_width = SCREEN_WIDTH // 2
 
         if self.death_count == 0:
             self.screen.blit(ICON,(half_screen_width - 42, half_screen_height - 100))
-            self.text_style(30, ("Press any key to start"), 47,79,79, half_screen_width, half_screen_height + 80)
+            self.text_format(30, ("Press any key to start"), "#2f4f4f", half_screen_width, half_screen_height + 80)
         else:
             self.screen.blit(ICON,(half_screen_width - 52, half_screen_height - 90))
-            self.text_style(22, (f"Death(s): {self.death_count}"), 204,0,0, 680,362)
-            self.text_style(22, ('Press any key for restart!'), 200,0,0, 480,362)
-            self.text_style(33, (f"Score: {self.score:.0f}"), 0,0,0, half_screen_width, 160)
+            self.text_format(22, (f"Death(s): {self.death_count}"), "#cc0000", 680,362)
+            self.text_format(22, ('Press any key for restart!'), "#c80000", 480,362)
+            self.text_format(33, (f"Score: {self.score:.0f}"), "#000000", half_screen_width, 160)
             
             self.game_speed = 20
             
