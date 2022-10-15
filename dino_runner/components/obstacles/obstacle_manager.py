@@ -28,11 +28,9 @@ class ObstacleManager:
                     game.playing = False
                     game.death_count += 1
                     break
-                else:
-                    if game.player.hammer:
-                        self.obstacles.remove(obstacle)
-                        
-
+                if game.power_up_manager.hammer_active == True:
+                    self.obstacles.remove(obstacle)
+                                        
     def draw(self, screen):
         for obstacle in self.obstacles:
             obstacle.draw(screen)

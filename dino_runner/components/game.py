@@ -5,11 +5,11 @@ from dino_runner.components.dinosaur import Dinosaur
 from dino_runner.components.obstacles.obstacle_manager import ObstacleManager
 from dino_runner.components.power_ups.power_up_manager import PowerUpManager
 
-
 FONT_STYLE = "freesansbold.ttf"
  
 
 class Game:
+    
     def __init__(self):
         pygame.init()
         pygame.display.set_caption(TITLE)
@@ -52,17 +52,17 @@ class Game:
 
     def events(self):
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            if event.type == pygame.QUIT:                
                 self.playing = False
                 self.running = False
-
+                                 
     def update(self):
         user_input = pygame.key.get_pressed()
         self.player.update(user_input)
         self.obstacle_manager.update(self)
         self.power_up_manager.update(self.score, self.game_speed, self.player)
         self.update_score()
-                    
+                                
     def update_score(self):
         self.score += 0.5
         if self.score % 100 == 0:
@@ -84,9 +84,9 @@ class Game:
                 
     def draw(self):
         self.clock.tick(FPS)
-        self.screen.fill("#C0C0C0")
+        self.screen.fill("#F8F8FF")
         self.draw_background()       
-        self.cloud()
+        self.clou_make()
         self.player.draw(self.screen)
         self.obstacle_manager.draw(self.screen)
         self.update_score()
@@ -104,23 +104,25 @@ class Game:
             self.x_pos_bg = 0
         self.x_pos_bg -= self.game_speed
     
-    def cloud(self):
+    def cloud(self, x_pos, y_pos):
         image_width = CLOUD.get_width()
-        self.screen.blit(CLOUD, (self.x_pos_cloud + 20, self.y_pos_cloud + 20))
-        self.screen.blit(CLOUD, (self.x_pos_cloud + 200, self.y_pos_cloud + 80))
-        self.screen.blit(CLOUD, (self.x_pos_cloud - 400, self.y_pos_cloud + 20))
-        self.screen.blit(CLOUD, (self.x_pos_cloud - 50, self.y_pos_cloud + 110))
-        self.screen.blit(CLOUD, (self.x_pos_cloud - 150, self.y_pos_cloud + 130))
-        self.screen.blit(CLOUD, (self.x_pos_cloud - 300, self.y_pos_cloud + 80))
-        self.screen.blit(CLOUD, (self.x_pos_cloud - 600, self.y_pos_cloud + 110))
-        self.screen.blit(CLOUD, (self.x_pos_cloud - 470, self.y_pos_cloud + 130))
-
-        if self.x_pos_cloud <= -image_width - 200:
-            self.screen.blit(CLOUD, (image_width - self.x_pos_cloud +200, self.y_pos_cloud))
-            self.x_pos_cloud = 1900
-        self.x_pos_cloud -=  3
-
+        self.screen.blit(CLOUD, (self.x_pos_cloud + x_pos, self.y_pos_cloud + y_pos))
+        if self.x_pos_cloud <= -image_width - 600:
+            self.x_pos_cloud = 1700
+        self.x_pos_cloud -=  1
+        
+    def clou_make(self):
+        self.cloud(20, 20)
+        self.cloud(200, 80)
+        self.cloud(-400, 20)
+        self.cloud(-50, 110)
+        self.cloud(-150, 130)
+        self.cloud(-300, 80)
+        self.cloud(600, 110)
+        self.cloud(-470, 130)
+        
     def handle_events_on_menu(self):
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.playing = False
@@ -128,8 +130,8 @@ class Game:
             elif event.type == pygame.KEYDOWN:
                 self.score = 0
                 self.run()
-                
-                
+                                           
+                               
     def text_format(self, size_font, format, color_hex, pos_x, pos_y):      
         font = pygame.font.Font(FONT_STYLE, size_font)
         text = font.render(format, True, (color_hex))
@@ -138,11 +140,9 @@ class Game:
         self.screen.blit(text, text_rect)
                 
     def show_menu(self):
-        self.screen.fill("#C0C0C0")
+        self.screen.fill("#F0F8FF")
         half_screen_height = SCREEN_HEIGHT // 2
-        half_screen_width = SCREEN_WIDTH // 2 
-        
-
+        half_screen_width = SCREEN_WIDTH // 2         
         if self.death_count == 0:
             self.text_format(21, (TITLE), "#2f4f4f", half_screen_width, half_screen_height + 180)
             self.screen.blit(ICON,(half_screen_width - 42, half_screen_height - 100))
@@ -150,22 +150,16 @@ class Game:
         else:
             if self.score >= self.record:
                 self.record = self.score -1
-                self.rec.append(self.rec)
                 self.rec.insert(0, self.record)
-            self.text_format(22, (f"Record: {self.rec[0]}"), "#008000", half_screen_width, 500)
+            self.text_format(22, (f"Record: {self.rec[0]:.0f}"), "#008000", half_screen_width, 500)
             self.screen.blit(GAME_OVER,(half_screen_width -205, 320))
             self.screen.blit(RESTART,(half_screen_width - 55, half_screen_height - 86))
-            self.screen.blit(ICON,(50, half_screen_height + 180))           
+            self.screen.blit(ICON,(50, half_screen_height + 180))        
             self.text_format(22, (f"Death(s): {self.death_count}"), "#cc0000", half_screen_width,430)
             self.text_format(22, ('Press any key for restart!'), "#808080", half_screen_width,378)
             self.text_format(33, (f"Score: {self.score:.0f}"), "#000000", half_screen_width -15, 160)
             self.game_speed = 20
             
-
         pygame.display.update()
         self.handle_events_on_menu()
-
-
-
-            
-                
+       
